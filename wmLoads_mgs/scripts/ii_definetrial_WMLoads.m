@@ -29,6 +29,7 @@ function [ii_data,ii_cfg] = ii_definetrial_WMLoads(ii_data,ii_cfg, c1, v1, c2, v
 
 % Updated for Multiple target seperate feedback trials that has different
 % end epoch
+% Qingqing Yang, 6/24/2022
 
 if nargin == 2
     prompt = {'Start when Channel', 'is at Value', 'Until Channel', 'is at Value'};
