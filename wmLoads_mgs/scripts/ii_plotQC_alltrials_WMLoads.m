@@ -69,6 +69,8 @@ end
 
 % load plotting params
 plot_params = ii_loadplotparams; % where we save things like EXCL_COLOR, etc...
+tmp_lines = lines(12);
+plot_params.TAR_COLORS = tmp_lines([3 6 7 12],:);
 % (note: can override them here if interested...)
 
 fh = [];
@@ -111,8 +113,17 @@ for rr = 1:length(ru)
         hold on;
         
         % TARG positions
-        plot([myt(1) myt(end)],[1 1]*ii_trial.targ(thisidx(tt),1),'k--');
-        plot([myt(1) myt(end)],[1 1]*ii_trial.targ(thisidx(tt),2),'k--');
+        for i = 1:length(ii_trial.params.resp_epoch)
+            eachidx = find(ii_trial.r_num==ru(rr) & ii_trial.resp_num==i);
+            each_resp_start = myt(find(ismember(ii_trial.XDAT{thisidx(tt)},ii_trial.params.resp_epoch(i)),1,'first'));
+            each_resp_end = myt(find(ismember(ii_trial.XDAT{thisidx(tt)},ii_trial.params.resp_epoch(i)),1,'last'));
+            if ~isempty(each_resp_start)
+                plot([each_resp_start each_resp_end],[1 1]*ii_trial.targ(eachidx(tt),1),'--','Color',plot_params.TAR_COLORS(i,:));
+                plot([each_resp_start each_resp_end],[1 1]*ii_trial.targ(eachidx(tt),2),'--','Color',plot_params.TAR_COLORS(i,:));
+            end
+        end
+        
+        % Center Fix position
         plot([myt(1) myt(end)],[0 0],'k-');
         
         % plot start of each response epoch
