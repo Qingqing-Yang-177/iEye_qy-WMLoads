@@ -193,7 +193,7 @@ for ff = 1:length(edf_files)
         ii_trial{ff}{pp}.is_eyetracker =  ones(size(ii_trial{ff}{pp}.X,1),1)==taskinfo{ff}.task.is_eyetracker;
         
         % plot fixations in each resp epoch separately
-        % [ii_data2,ii_cfg2] = ii_definetrial_respepoch(ii_data,ii_cfg,...
+        % [ii_data2,ii_cfg2] = ii_definetrial_respepoch_WMLoads(ii_data,ii_cfg,...
         %   ii_params.trial_start_chan, ii_params.trial_start_value,...
         %   ii_params.trial_end_chan,   ii_params.trial_end_value,...
         %   ii_params.drift_epoch, resp_epoch);
@@ -213,7 +213,7 @@ for ff=1:length(edf_files)
 end
 
 %% Combine the data in each run (concat the runs)
-ii_sess = ii_combineruns(ii_alltrial);
+ii_sess = ii_combineruns_WMLoads(ii_alltrial);
 
 %% look at the processed data, make sure it looks ok
 
@@ -314,7 +314,7 @@ use_trial(ii_sess.i_sacc_rt < 0.1) = 0;
 figure;
 histogram(ii_sess.i_sacc_rt(use_trial==1),10);
 xlabel('Response time (s)');
-xlim([0 2]); % 700 ms is longest allowed RT
+xlim([0 1]); % 800 ms is longest allowed RT
 
 
 %% SECOND: plot all traces for primary, final saccade for each run

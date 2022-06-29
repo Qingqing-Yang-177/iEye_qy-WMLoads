@@ -1,4 +1,4 @@
-function ii_perrun=merge_run(ii_trial,run,taskinfo,same_field) 
+function ii_perrun=ii_merge_run(ii_trial,run,taskinfo,same_field) 
 % function for merge each run's different epoch data
 % data in each epoch under the same filename are merged into 1 column in 
 % table, with that specific filename as column name

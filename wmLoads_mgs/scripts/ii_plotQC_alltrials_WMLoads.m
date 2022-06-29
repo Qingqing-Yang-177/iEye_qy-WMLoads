@@ -189,30 +189,31 @@ for rr = 1:length(ru)
         
         for i = 1:length(ii_trial.params.resp_epoch)
             eachidx = find(ii_trial.r_num==ru(rr) & ii_trial.resp_num==i);
-            for ee = 1:length(ii_trial.excl_trial{eachidx(tt)})
-                if ee == 1
-                    this_txt = strcat(this_txt,'; ');
-                end
-            
-            % which all_excl index?
-            %tmpidx = find(ii_trial.excl_trial{thisidx(tt)}(ee)==all_excl);
-            
-                this_txt = strcat(this_txt,excl_labels_abbrev{ii_trial.excl_trial{eachidx(tt)}(ee)==all_excl});
-            
-            % if this is a useful exclusion criterion, add an asterisk
-                if ismember(ii_trial.excl_trial{eachidx(tt)}(ee),which_excl)
-                    this_txt = strcat(this_txt,'*');
-                end
+            if ~isempty(ii_trial.excl_trial{eachidx(tt)}) && ii_trial.excl_trial{eachidx(tt)}(1)~=10
+                for ee = 1:length(ii_trial.excl_trial{eachidx(tt)})
+                    if ee == 1
+                        this_txt = strcat(this_txt,'; ');
+                    end
 
-                % if not the last one, add a comma
-                if ee~=length(ii_trial.excl_trial{eachidx(tt)})
-                    this_txt = strcat(this_txt,', ');
+                % which all_excl index?
+                %tmpidx = find(ii_trial.excl_trial{thisidx(tt)}(ee)==all_excl);
+
+                    this_txt = strcat(this_txt,excl_labels_abbrev{ii_trial.excl_trial{eachidx(tt)}(ee)==all_excl});
+
+                % if this is a useful exclusion criterion, add an asterisk
+                    if ismember(ii_trial.excl_trial{eachidx(tt)}(ee),which_excl)&& ~sum(ii_trial.excl_trial{eachidx(tt)}(ee)==10)
+                        this_txt = strcat(this_txt,'*');
+                    end
+
+                    % if not the last one, add a comma
+                    if ee~=length(ii_trial.excl_trial{eachidx(tt)})
+                        this_txt = strcat(this_txt,', ');
+                    end
                 end
             end
-        
             if ~isempty(ii_trial.excl_trial{eachidx(tt)})
                 this_angle = 'italic';
-                if any(ismember(ii_trial.excl_trial{eachidx(tt)},which_excl))
+                if any(ismember(ii_trial.excl_trial{eachidx(tt)},which_excl))&&~sum(ii_trial.excl_trial{eachidx(tt)}(ee)==10)
                     this_color = plot_params.EXCL_COLOR;
                 end
             end

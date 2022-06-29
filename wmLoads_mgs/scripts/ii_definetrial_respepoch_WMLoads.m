@@ -1,4 +1,4 @@
-function [ii_data2,ii_cfg2] = ii_definetrial_respepoch(ii_data,ii_cfg, c1, v1, c2, v2,center_epoch,resp_epoch)
+function [ii_data2,ii_cfg2] = ii_definetrial_respepoch_WMLoads(ii_data,ii_cfg, c1, v1, c2, v2,center_epoch,resp_epoch)
 %II_DEFINETRIAL Splits data into individual trials based on signal in the
 %               ii_data.(chan) variable
 %   [ii_data,ii_cfg] = ii_definetrial(ii_data,ii_cfg,c1,v1,c2,v2) splits
