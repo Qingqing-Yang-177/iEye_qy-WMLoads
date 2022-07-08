@@ -213,12 +213,22 @@ for ff=1:length(edf_files)
 end
 
 %% Combine the data in each run (concat the runs)
+clear ii;
 ii_sess = ii_combineruns_WMLoads(ii_alltrial);
 
+% save setsize
+for ii = 1:size(ii_sess.alltarg,1)
+ii_sess.setsize(ii,1) = sum(ii_sess.alltarg(ii,:)~=0)/2;
+end
+
+% save ii_sess as sumarized data
+datafile = sprintf('%s/%s_%.fruns_ii_sess.mat',task_files(1).folder,taskinfo{1, 1}.task.subjectID,length(taskinfo));
+save(datafile,'ii_sess');
+    
 %% look at the processed data, make sure it looks ok
 
 % based on what criteria shoudl we exclude trials?
-which_excl = [11 13 20 21 22 23]; % Added 23 when i_sacc and f_sacc is for diff target, Qingqing Yang, 6/9/2022
+which_excl = [13 20 23]; % Added 23 when i_sacc and f_sacc is for diff target, Qingqing Yang, 6/9/2022
 
 % TRIAL EXCLUSION CODES:
 % first-digit:
@@ -302,6 +312,7 @@ num=length(ii_sess.excl_trial);
 use_trial(ii_sess.i_sacc_rt < 0.1) = 0;
 
 % see how many trials we're keeping
+
 fprintf('Analyzing %0.03f%% of trials\n%i out of %i\n',keep_rate*100, mean(use_trial)*num, mean(trial_exist)*num);
 
 %% FIRST: plot RT histogram
@@ -311,14 +322,15 @@ trial_exist=~cellfun(@any,cellfun(@(a) ismember(10,a),ii_sess.excl_trial,'Unifor
 use_trial = trial_exist&use_trial;
 use_trial(ii_sess.i_sacc_rt < 0.1) = 0;
 
-figure;
+f_ts = figure;
 histogram(ii_sess.i_sacc_rt(use_trial==1),10);
 xlabel('Response time (s)');
 xlim([0 1]); % 800 ms is longest allowed RT
-
+saveas(f_ts,sprintf('%s/%s_RT_his.png',edf_files(1).folder,taskinfo{1}.task.subjectID));
+clear f_ts;
 
 %% SECOND: plot all traces for primary, final saccade for each run
-figure;
+f_ts =figure;
 ru = unique(ii_sess.r_num); % get run #'s
 
 use_trial = ~cellfun( @any, cellfun( @(a) ismember(a, which_excl), ii_sess.excl_trial, 'UniformOutput',false));
@@ -358,13 +370,14 @@ for rr = 1:length(ru)
     
     title(sprintf('Run %i',ru(rr)));
 end
-
+saveas(f_ts,sprintf('%s/%s_i&f_traces.png',edf_files(1).folder,taskinfo{1}.task.subjectID));
+clear f_ts;
 % btw, a *very* fast way to do a quick approximation of the above, at least
 % for one set of traces, is:
 % cellfun(@(c) plot(c(:,1),c(:,2), ii_sess.i_sacc_trace{use_trial==1});
 
 %% THIRD: plot aligned initial and final saccade endpoints
-figure;
+f_ts = figure;
 to_plot = {'i_sacc','f_sacc'}; % what fields do we want to plot?
 
 use_trial = ~cellfun( @any, cellfun( @(a) ismember(a, which_excl), ii_sess.excl_trial, 'UniformOutput',false));
@@ -387,7 +400,9 @@ for pp = 1:length(to_plot)
     tmpy(thisflipidx) = -1*tmpy(thisflipidx);
     
     %scatter(ii_sess.(to_plot{pp})(use_trial==1,1),ii_sess.(to_plot{pp})(use_trial==1,2),20,mycolors(pp,:),'filled','MarkerFaceAlpha',0.5);
-    scatter(ii_sess.(to_plot{pp})(use_trial==1,1),tmpy,20,mycolors(pp,:),'filled','MarkerFaceAlpha',0.5);
+    s = scatter(ii_sess.(to_plot{pp})(use_trial==1,1),tmpy,20,mycolors(pp,:),'filled','MarkerFaceAlpha',0.5);
+    s.MarkerFaceAlpha = 0.15;
+    s.MarkerFaceColor = [0 0 1];
     
     plot(0,0,'k+','MarkerSize',8,'MarkerFaceColor','k');
     plot(9,0,'kx','MarkerSize',8,'MarkerFaceColor','k');
@@ -396,7 +411,8 @@ for pp = 1:length(to_plot)
     
     title(to_plot{pp},'Interpreter','none');
 end
-
+saveas(f_ts,sprintf('%s/%s_i&f_endpoints.png',edf_files(1).folder,taskinfo{1}.task.subjectID));
+clear f_ts;
 %% FOURTH: align all trial timecouress and saccade traces and plot
 % sometimes it's useful to plot a stacked set of saccade timecourses
 % aligned towards the direction of the target. Here, I'll do that for the
@@ -410,7 +426,7 @@ use_trial = trial_exist&use_trial;
 use_trial(ii_sess.i_sacc_rt < 0.1) = 0;
 
 % start with just i_sacc_trace
-figure;
+f_ts = figure;
 subplot(3,1,[1 2]); hold on;
 if strcmp(task,'wmloads_SimuFb')% only frist resp_epoch (SimuFb)
     thisidx = find(ii_sess.resp_num ==1 & use_trial==1);
@@ -479,3 +495,20 @@ xlabel('Time (s) after GO');
 ylabel('Eye position (towards target)');
 xlim([0 1.5]); ylim([-2 15]);
 set(gca,'XTick',[0:0.7:1.4],'YTick',[0:6:12],'TickDir','out');
+
+saveas(f_ts,sprintf('%s/%s_timecourses_traces.png',edf_files(1).folder,taskinfo{1}.task.subjectID));
+clear f_ts;
+
+%% Further Basic Analysis
+use_trial = ~cellfun( @any, cellfun( @(a) ismember(a, which_excl), ii_sess.excl_trial, 'UniformOutput',false));
+trial_exist = zeros(length(ii_sess.excl_trial),1)==0;
+trial_exist=~cellfun(@any,cellfun(@(a) ismember(10,a),ii_sess.excl_trial,'UniformOutput',false));
+use_trial = trial_exist&use_trial;
+use_trial(ii_sess.i_sacc_rt < 0.1) = 0;
+
+setsizes=unique(ii_sess.setsize);
+for i = 1:length(setsizes)
+thisidx = find(ii_sess.setsize==setsizes(i));
+i_errors = [i_errors nanmean(ii_sess.i_sacc_err(thisidx))];
+f_errors = [f_errors nanmean(ii_sess.f_sacc_err(thisidx))];
+end
