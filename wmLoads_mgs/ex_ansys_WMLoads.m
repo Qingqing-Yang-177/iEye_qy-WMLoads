@@ -217,8 +217,17 @@ clear ii;
 ii_sess = ii_combineruns_WMLoads(ii_alltrial);
 
 % save setsize
-for ii = 1:size(ii_sess.alltarg,1)
-ii_sess.setsize(ii,1) = sum(ii_sess.alltarg(ii,:)~=0)/2;
+ii_sess.setsize = [];
+setsize = [];
+MaxLoad = taskinfo{ff}.task.maxLoad; % 4 for my task
+TrialNum = taskinfo{ff}.task.trialNum; %36 for my task
+for r = 1:max(unique(ii_sess.r_num))
+    for ii = 1:size(ii_sess.alltarg(ii_sess.r_num==r,:),1)/MaxLoad ;
+        add = (r-1)*TrialNum*MaxLoad; 
+        setsize(ii,1) = sum(ii_sess.alltarg(add+ii,:)~=0)/2; % since alltarg is for x and y
+    end
+    ii_sess.setsize=[ii_sess.setsize; repmat(setsize,[MaxLoad,1])];
+    clear setsize
 end
 
 % save ii_sess as sumarized data
